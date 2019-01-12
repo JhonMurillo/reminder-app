@@ -11,6 +11,14 @@ repository.saveReminder = reminder => {
     return db.ref('reminders').push(reminder)
 }
 
+
+repository.updateReminder = reminder => {
+    return db.ref(`reminders/${reminder.key}`).update({
+        scheduled: reminder.scheduled,
+        dateUpdated: moment().format('MM/DD/YYYY HH:mm:ss')
+    });
+}
+
 repository.getReminders = async () => {
     const reminders = util.snapshotToArray(await db.ref('reminders').once('value'))
     return reminders
