@@ -37,8 +37,6 @@ const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async 
         const rule = new Date(ruleReminder.year, ruleReminder.month, ruleReminder.date, ruleReminder.hour, ruleReminder.minute, ruleReminder.second);
         const reminderSchedule = schedule.scheduleJob(rule, function (rem) {
             try {
-                console.log(rem)
-                console.log(rem.message)
                 console.log('Send message => ' + rem.message + ' - ' + moment().format('MM/DD/YYYY HH:mm:ss'));
                // sendEmailV2(rem.message)
             } catch (error) {
@@ -46,8 +44,8 @@ const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async 
             }
         }.bind(null, reminder));
 
-        /*reminder.scheduled = true
-        repo.updateReminder(reminder)*/
+        reminder.scheduled = true
+        repo.updateReminder(reminder)
     })
 
     console.log('End Main Schedule... ' + moment().format('MM/DD/YYYY HH:mm:ss'));
