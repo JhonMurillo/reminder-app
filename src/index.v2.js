@@ -6,7 +6,7 @@ const uuidv4 = require('uuid/v4')
 const Slack = require('slack-node');
 const { WebClient } = require('@slack/client');
 
-const token = "xoxb-523503548023-522302167060-dVVhsAhpgRC8ZR9hvEoJ4n6t";
+const token = process.env.TOKEN_SLACK_BOT;
 const web = new WebClient(token);
 
 let ruleMain = {};
