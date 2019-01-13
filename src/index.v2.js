@@ -63,6 +63,7 @@ const sendSlackMessage = reminder => {
             console.log(err);
             throw new Error(err)
         }
+        console.log(response)
         const members = response.members
         const member = members.filter(memb => memb.profile.email === reminder.email).shift()
 
