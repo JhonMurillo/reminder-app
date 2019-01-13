@@ -3,8 +3,11 @@ const schedule = require('node-schedule');
 const moment = require('moment');
 const repo = require('./repository')
 const uuidv4 = require('uuid/v4')
-const nodemailer = require("nodemailer");
-const sendmail = require('sendmail')();
+const Slack = require('slack-node');
+const { WebClient } = require('@slack/client');
+
+const token = "xoxb-523503548023-522302167060-j8yC8xfKKvr8i1knbexyGX6b";
+const web = new WebClient(token);
 
 let ruleMain = {};
 ruleMain.minute = 01;
@@ -21,9 +24,11 @@ const saveReminder = () => {
 }
 
 const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async (fireDate) => {
+
     console.log('Start Main Schedule... ' + moment().format('MM/DD/YYYY HH:mm:ss'));
     const reminders = await repo.getReminderByScheduled(false);
 
+    console.info(`# Of reminders sheduled: ${reminders.length}`)
 
     reminders.forEach(reminder => {
         let ruleReminder = {};
@@ -38,7 +43,7 @@ const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async 
         const reminderSchedule = schedule.scheduleJob(rule, function (rem) {
             try {
                 console.log('Send message => ' + rem.message + ' - ' + moment().format('MM/DD/YYYY HH:mm:ss'));
-               // sendEmailV2(rem.message)
+                sendSlackMessage(rem)
             } catch (error) {
                 console.error('error', error)
             }
@@ -50,44 +55,40 @@ const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async 
 
     console.log('End Main Schedule... ' + moment().format('MM/DD/YYYY HH:mm:ss'));
 });
-const sendEmailV2 = async (message) => {
-    sendmail({
-        from: 'jhonmurillo2014@gmail.com',
-        to: 'jhonma16@hotmail.com',
-        subject: 'test sendmail',
-        html: message,
-    }, function (err, reply) {
-        console.log(err && err.stack);
-        console.dir(reply);
-    });
-}
-const sendEmail = async (message) => {
 
-    const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: 'jhonmurillo2014@gmail.com',
-            pass: 'murillo18'
+const sendSlackMessage = reminder => {
+    webhookUri = "https://hooks.slack.com/services/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";
+    slack = new Slack(token);
+
+    slack.api("users.list", function (err, response) {
+        if (err) {
+            console.log(err);
+            throw new Error(err)
         }
+        const members = response.members
+        const member = members.filter(memb => memb.profile.email === reminder.email).shift()
+
+        slack.setWebhook(webhookUri);
+        message = `<@${member.id}> ${reminder.message}`
+
+        //Send Message to Channel
+        /*slack.webhook({
+            channel: "#remindernotifications",
+            username: "reminderapp",
+            text: message
+        }, function (err, response) {
+            if (err) {
+                console.log(err);
+                throw new Error(err)
+            }
+        });*/
+        web.chat.postMessage({ channel: member.id, text: message })
+            .then((res) => {
+                console.log('Message sent: ', res.ts);
+            })
+            .catch(console.error);
     });
 
 
-    let mailOptions = {
-        from: '"Jhon Murillo 👻" <jhonmurillo2014@gmail.com>', // sender address
-        to: "jhonma16@hotmail.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: "<b>Hello world? " + message + " </b>" // html body
-    };
-
-    // send mail with defined transport object
-    let info = await transporter.sendMail(mailOptions)
-
-    console.log("Message sent: %s", info.messageId);
-    // Preview only available when sending through an Ethereal account
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
-
 //saveReminder()

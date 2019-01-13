@@ -8,11 +8,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@slack/client": "^4.8.0",
     "firebase": "^5.0.4",
     "moment": "^2.22.2",
     "node-schedule": "^1.3.1",
-    "nodemailer": "^5.1.1",
-    "sendmail": "^1.4.1",
+    "slack-node": "^0.1.8",
     "uuid": "^3.2.1"
   },
   "repository": {
