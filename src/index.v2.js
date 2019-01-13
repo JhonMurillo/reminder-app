@@ -14,7 +14,7 @@ ruleMain.minute = 01;
 
 
 const mainSchedule = schedule.scheduleJob(`${ruleMain.minute} * * * * *`, async (fireDate) => {
-
+    console.log(process.env.TOKEN_SLACK_BOT)
     console.log('Start Main Schedule... ' + moment().format('MM/DD/YYYY HH:mm:ss'));
     const reminders = await repo.getReminderByScheduled(false);
 
