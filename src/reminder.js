@@ -1,7 +1,6 @@
 const schedule = require('node-schedule');
 const moment = require('moment');
-const repo = require('./repository');
-const uuidv4 = require('uuid/v4');
+const nodemailer = require('nodemailer');
 const path = require('path');
 require('dotenv').config({ path: `${path.dirname(__dirname)}/.env` });
 const axios = require('axios');
@@ -10,10 +9,17 @@ const recipents = [
   {
     name: 'Yasmira Puentes Isaza',
     phone: '+573233461933',
+    email: 'yasmira.isaza@gmail.com',
+  },
+  {
+    name: 'Yasmira Puentes Isaza',
+    phone: '+573233461933',
+    email: 'yasmira-isaza@hotmail.com',
   },
   {
     name: 'Jhon Mario Murillo Cordoba',
     phone: '+573145202474',
+    email: 'jhonmurillo2014@gmail.com',
   },
 ];
 
@@ -23,6 +29,8 @@ const {
   TWILIO_AUTH_TOKEN,
   URL_EXPIRES,
   CRON_EXPRESSION,
+  ACCOUNT_EMAIL_SENDER,
+  PASSWORD_EMAIL_SENDER,
 } = process.env;
 
 // require the Twilio module and create a REST client
@@ -50,6 +58,32 @@ const sendWSMessage = async (msg) => {
   }
 };
 
+const sendEmail = async (body) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: ACCOUNT_EMAIL_SENDER,
+        pass: PASSWORD_EMAIL_SENDER,
+      },
+    });
+
+    const emails = recipents.map((r) => r.email).join(',');
+    console.log(emails);
+    const mailOptions = {
+      from: PASSWORD_EMAIL_SENDER,
+      to: emails,
+      subject: 'Notificacion Admin Netflix',
+      text: body,
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const getAccountNearToExpire = async () => {
   try {
     const result = await axios.get(URL_EXPIRES);
@@ -67,7 +101,7 @@ const getAccountNearToExpire = async () => {
       body += `- Perfil: ${field.profile.profile_name}, Cuenta: ${field.account.email}\n`;
     }
     if (!hasNearToExpired) {
-      body += '\n No hay ninguna cuenta cerca a expirar!\n';
+      body += '\nNo hay ninguna cuenta que expire hoy!\n';
     }
 
     body = body + `\nEstas Cuentas Estan Expiradas:\n`;
@@ -77,11 +111,15 @@ const getAccountNearToExpire = async () => {
       body += `- Perfil: ${field.profile.profile_name}, Cuenta: ${field.account.email}\n`;
     }
     if (!hasExpired) {
-      body += '\n No hay ninguna expirada!\n';
+      body += '\nNo hay ninguna expirada!\n';
     }
 
     if (hasBody) {
-      await sendWSMessage(body);
+      const accountLink =
+        'https://admin-netflix.herokuapp.com/cuentas/dashboard';
+      body = `Hola, Solo quiero recordarte que tienes cuentas que expiran hoy/cuentas expiradas!\n${body}\nPara mayor información, revisa este link ${accountLink}\nGracias\nAdmin Netflix.`;
+      // await sendWSMessage(`Your {{1}} code is {{2}}, ${body}`);
+      await sendEmail(body);
     }
 
     console.log(body);
