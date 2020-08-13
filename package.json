@@ -4,26 +4,28 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "npm install pm2 -g",
-    "start": "pm2-runtime ./src/index.v2.js -i 1",
+    "start": "pm2-runtime ./src/reminder.js -i 1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@slack/client": "^4.8.0",
-    "firebase": "^5.0.4",
-    "moment": "^2.22.2",
-    "node-schedule": "^1.3.1",
-    "slack-node": "^0.1.8",
-    "uuid": "^3.2.1"
+    "axios": "0.19.2",
+    "dotenv": "8.2.0",
+    "firebase": "7.17.2",
+    "moment": "2.22.2",
+    "node-schedule": "1.3.1",
+    "slack-node": "0.1.8",
+    "twilio": "3.48.2",
+    "uuid": "3.2.1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JhonMurillo/app-react.git"
+    "url": "git+https://github.com/JhonMurillo/reminder-app.git"
   },
-  "author": "Jhon Murillo Cordoba\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D Mario\u001b[3~\u001b[2~ M\u001b[2~urillo Cordoba",
+  "author": "Jhon Murillo Cordoba",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JhonMurillo/app-react/issues"
+    "url": "https://github.com/JhonMurillo/reminder-app/issues"
   },
-  "homepage": "https://github.com/JhonMurillo/app-react#readme",
+  "homepage": "https://github.com/JhonMurillo/reminder-app#readme",
   "description": ""
 }

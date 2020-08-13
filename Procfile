@@ -1,1 +1,1 @@
-worker: pm2-runtime ./src/index.v2.js -i 1
+worker: pm2-runtime ./src/reminder.js -i 1
