@@ -5,6 +5,10 @@ const path = require('path');
 require('dotenv').config({ path: `${path.dirname(__dirname)}/.env` });
 const axios = require('axios');
 
+const { WebClient } = require('@slack/web-api');
+const token = process.env.TOKEN_SLACK_BOT;
+const web = new WebClient(token);
+
 const recipents = [
   {
     name: 'Yasmira Puentes Isaza',
@@ -61,7 +65,7 @@ const sendWSMessage = async (msg) => {
 const sendEmail = async (body) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: 'Gmail',
       auth: {
         user: ACCOUNT_EMAIL_SENDER,
         pass: PASSWORD_EMAIL_SENDER,
@@ -79,9 +83,21 @@ const sendEmail = async (body) => {
 
     const result = await transporter.sendMail(mailOptions);
     console.log(result);
+    transporter.close();
   } catch (error) {
     console.error(error);
   }
+};
+
+const sendSlackMessage = (reminder) => {
+  message = `<!channel> ${reminder.message}`;
+
+  web.chat
+    .postMessage({ channel: '#remindernotifications', text: message })
+    .then((res) => {
+      console.log('Message sent: ', res.ts);
+    })
+    .catch(console.error);
 };
 
 const getAccountNearToExpire = async () => {
@@ -119,8 +135,12 @@ const getAccountNearToExpire = async () => {
         'https://admin-netflix.herokuapp.com/cuentas/dashboard';
       body = `Hola, Solo quiero recordarte que tienes cuentas que expiran hoy/cuentas expiradas!\n${body}\nPara mayor información, revisa este link ${accountLink}\nGracias\nAdmin Netflix.`;
       // await sendWSMessage(`Your {{1}} code is {{2}}, ${body}`);
-      await sendEmail(body);
+      // await sendEmail(body);
+    } else {
+      body = 'Estas al dia!';
     }
+
+    await sendSlackMessage({ message: body });
 
     console.log(body);
   } catch (error) {
